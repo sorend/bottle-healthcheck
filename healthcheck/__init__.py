@@ -5,7 +5,7 @@ import socket
 import sys
 import time
 import traceback
-from flask import current_app
+import bottle
 try:
     from functools import reduce
 except Exception:
@@ -71,7 +71,7 @@ class HealthCheck(object):
 
     def init_app(self, app, path):
         if path:
-            app.add_url_rule(path, view_func=self.check, **self.options)
+            app.route(path, callback=self.check, **self.options)
 
     def add_check(self, func):
         self.checkers.append(func)
@@ -93,13 +93,22 @@ class HealthCheck(object):
             if self.success_handler:
                 message = self.success_handler(results)
 
-            return message, self.success_status, self.success_headers
+            print "OK"
+            response = bottle.HTTPResponse(
+                body=message,
+                status=self.success_status,
+                headers=self.success_headers)
+            return response
         else:
             message = "NOT OK"
             if self.failed_handler:
                 message = self.failed_handler(results)
 
-            return message, self.failed_status, self.failed_headers
+            response = bottle.HTTPError(
+                body=message,
+                status=self.failed_status,
+                headers=self.failed_headers)
+            return response
 
     def run_check(self, checker):
         try:
@@ -107,12 +116,12 @@ class HealthCheck(object):
         except Exception:
             traceback.print_exc()
             e = sys.exc_info()[0]
-            current_app.logger.exception(e)
+            #bottle.app().logger.exception(e)
             passed, output = self.exception_handler(checker, e)
 
         if not passed:
             msg = 'Health check "{}" failed with output "{}"'.format(checker.__name__, output)
-            current_app.logger.error(msg)
+            #bottle.app().logger.error(msg)
 
         timestamp = time.time()
         if passed:
@@ -147,7 +156,7 @@ class EnvironmentDump(object):
 
     def init_app(self, app, path):
         if path:
-            app.add_url_rule(path, view_func=self.dump_environment)
+            app.route(path, callback=self.dump_environment)
 
     def add_section(self, name, func):
         if name in self.functions:
@@ -159,7 +168,7 @@ class EnvironmentDump(object):
         for (name, func) in self.functions.iteritems():
             data[name] = func()
 
-        return json.dumps(data), 200, {'Content-Type': 'application/json'}
+        return bottle.HTTPResponse(data, 200, {'Content-Type': 'application/json'})
 
     def get_os(self):
         return {'platform': sys.platform,
@@ -167,7 +176,7 @@ class EnvironmentDump(object):
                 'uname': os.uname()}
 
     def get_config(self):
-        return self.safe_dump(current_app.config)
+        return self.safe_dump(bottle.app().config)
 
     def get_python(self):
         result = {'version': sys.version,

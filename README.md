@@ -1,14 +1,14 @@
 Healthcheck
 ----------
 
-Healthcheck wraps a Flask app object and adds a way to write simple heathcheck
+Healthcheck wraps a Bottle app object and adds a way to write simple heathcheck
 functions that can be use to monitor your application. It's useful for
 asserting that your dependencies are up and running and your application can
 respond to HTTP requests. The Healthcheck functions are exposed via a user
-defined flask route so you can use an external monitoring application (monit,
+defined bottle route so you can use an external monitoring application (monit,
 nagios, Runscope, etc.) to check the status and uptime of your application.
 
-New in version 1.1: Healthcheck also gives you a simple Flask route to view
+Healthcheck also gives you a simple Bottle route to view
 information about your application's environment. By default, this includes
 data about the operating system, the Python environment, the current process,
 and the application config. You can customize which sections are included, or
@@ -17,7 +17,7 @@ add your own sections to the output.
 ## Installing
 
 ```
-pip install healthcheck
+pip install bottle-healthcheck
 
 ```
 
@@ -26,12 +26,12 @@ pip install healthcheck
 Here's an example of basic usage:
 
 ```python
-from flask import Flask
+from bottle import Bottle
 from healthcheck import HealthCheck, EnvironmentDump
 
-app = Flask(__name__)
+app = Bottle()
 
-# wrap the flask app and give a heathcheck url
+# wrap the bottle app and give a heathcheck url
 health = HealthCheck(app, "/healthcheck")
 envdump = EnvironmentDump(app, "/environment")
 

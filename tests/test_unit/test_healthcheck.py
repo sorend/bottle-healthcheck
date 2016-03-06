@@ -1,17 +1,21 @@
 from __future__ import with_statement
 
 import unittest
-import flask
+import bottle
+from webtest import TestApp
+
 from healthcheck import HealthCheck, EnvironmentDump
+
+bottle.debug()
 
 
 class BasicHealthCheckTest(unittest.TestCase):
 
     def setUp(self):
         self.path = '/h'
-        self.app = flask.Flask(__name__)
+        self.app = bottle.Bottle()
         self.hc = self._hc()
-        self.client = self.app.test_client()
+        self.client = TestApp(self.app)
 
     def _hc(self):
         return HealthCheck(self.app, self.path)
@@ -25,7 +29,7 @@ class BasicHealthCheckTest(unittest.TestCase):
             return False, "FAIL"
 
         self.hc.add_check(fail_check)
-        response = self.client.get(self.path)
+        response = self.client.get(self.path, expect_errors=True)
         self.assertEqual(500, response.status_code)
 
 
@@ -33,9 +37,9 @@ class BasicEnvironmentDumpTest(unittest.TestCase):
 
     def setUp(self):
         self.path = '/e'
-        self.app = flask.Flask(__name__)
+        self.app = bottle.Bottle()
         self.hc = self._hc()
-        self.client = self.app.test_client()
+        self.client = TestApp(self.app)
 
     def _hc(self):
         return EnvironmentDump(self.app, self.path)
@@ -48,7 +52,7 @@ class BasicEnvironmentDumpTest(unittest.TestCase):
 
         response = self.client.get(self.path)
         self.assertEqual(200, response.status_code)
-        jr = flask.json.loads(response.data)
+        jr = response.json
         self.assertEqual("OK", jr["test_func"])
 
 
