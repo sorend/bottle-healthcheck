@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='bottle-healthcheck',
-      version='0.2',
+      version='0.2.1',
       description='Adds healthcheck endpoints to Bottle apps',
       author='Frank Stratton',
       author_email='frank@runscope.com',
