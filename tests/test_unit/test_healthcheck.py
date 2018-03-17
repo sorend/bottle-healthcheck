@@ -4,7 +4,7 @@ import unittest
 import bottle
 from webtest import TestApp
 
-from healthcheck import HealthCheck, EnvironmentDump
+from bottle_healthcheck import HealthCheck, EnvironmentDump
 
 bottle.debug()
 

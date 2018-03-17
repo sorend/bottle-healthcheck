@@ -1,3 +1,4 @@
+from __future__ import print_function
 import imp
 import json
 import os
@@ -6,6 +7,7 @@ import sys
 import time
 import traceback
 import bottle
+import six
 try:
     from functools import reduce
 except Exception:
@@ -93,7 +95,7 @@ class HealthCheck(object):
             if self.success_handler:
                 message = self.success_handler(results)
 
-            print "OK"
+            print("OK")
             response = bottle.HTTPResponse(
                 body=message,
                 status=self.success_status,
@@ -165,7 +167,7 @@ class EnvironmentDump(object):
 
     def dump_environment(self):
         data = {}
-        for (name, func) in self.functions.iteritems():
+        for (name, func) in six.iteritems(self.functions):
             data[name] = func()
 
         return bottle.HTTPResponse(data, 200, {'Content-Type': 'application/json'})

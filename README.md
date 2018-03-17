@@ -27,7 +27,7 @@ Here's an example of basic usage:
 
 ```python
 from bottle import Bottle
-from healthcheck import HealthCheck, EnvironmentDump
+from bottle_healthcheck import HealthCheck, EnvironmentDump
 
 app = Bottle()
 
@@ -120,7 +120,7 @@ In Runscope's infrastructure, the /healthcheck endpoint is hit surprisingly
 often. haproxy runs on every server, and each haproxy hits every healthcheck
 twice a minute. (So if we have 30 servers in our infrastructure, that's 60
 healthchecks per minute to every Flask service.) Plus, monit hits every
-healthcheck 6 times a minute. 
+healthcheck 6 times a minute.
 
 To avoid putting too much strain on backend services, health check results can
 be cached in process memory. By default, health checks that succeed are cached
